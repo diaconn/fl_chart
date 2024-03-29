@@ -124,6 +124,16 @@ class _LineChartState extends AnimatedWidgetBaseState<LineChart> {
       //   _showingTouchedTooltips.clear();
       //   _showingTouchedIndicators.clear();
       // });
+
+      //변경코드2
+      _resetTimer?.cancel();
+
+      _resetTimer = Timer(const Duration(milliseconds: 3000), () {
+        setState(() {
+          _showingTouchedTooltips.clear();
+          _showingTouchedIndicators.clear();
+        });
+      });
       return;
     }
 
@@ -140,17 +150,6 @@ class _LineChartState extends AnimatedWidgetBaseState<LineChart> {
       _showingTouchedTooltips
         ..clear()
         ..add(ShowingTooltipIndicators(sortedLineSpots));
-    });
-
-    //변경코드2
-
-    _resetTimer?.cancel();
-
-    _resetTimer = Timer(const Duration(milliseconds: 3000), () {
-      setState(() {
-        _showingTouchedTooltips.clear();
-        _showingTouchedIndicators.clear();
-      });
     });
   }
 
