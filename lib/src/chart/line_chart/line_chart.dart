@@ -120,12 +120,13 @@ class _LineChartState extends AnimatedWidgetBaseState<LineChart> {
     _providedTouchCallback?.call(event, touchResponse);
 
     if (!event.isInterestedForInteractions || touchResponse?.lineBarSpots == null || touchResponse!.lineBarSpots!.isEmpty) {
+      // 기존 툴팁의 setState를 주석(툴팁이 바로 없어지는 부분 제거)
       // setState(() {
       //   _showingTouchedTooltips.clear();
       //   _showingTouchedIndicators.clear();
       // });
 
-      //변경코드2
+      // 선택한 툴팁이 3초동안 지속 되고(Timer), 3초 전에 선택한 툴팁은 취소 되도록(Timer.cancle()) 변경
       _resetTimer?.cancel();
 
       _resetTimer = Timer(const Duration(milliseconds: 3000), () {
