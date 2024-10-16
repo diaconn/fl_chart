@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:fl_chart/src/chart/base/axis_chart/axis_chart_scaffold_widget.dart';
 import 'package:fl_chart/src/chart/line_chart/line_chart_helper.dart';
@@ -47,6 +49,9 @@ class _LineChartState extends AnimatedWidgetBaseState<LineChart> {
 
   final _lineChartHelper = LineChartHelper();
 
+  //변경코드1
+  Timer? _resetTimer;
+
   @override
   Widget build(BuildContext context) {
     final showingData = _getData();
@@ -62,8 +67,7 @@ class _LineChartState extends AnimatedWidgetBaseState<LineChart> {
   }
 
   LineChartData _withTouchedIndicators(LineChartData lineChartData) {
-    if (!lineChartData.lineTouchData.enabled ||
-        !lineChartData.lineTouchData.handleBuiltInTouches) {
+    if (!lineChartData.lineTouchData.enabled || !lineChartData.lineTouchData.handleBuiltInTouches) {
       return lineChartData;
     }
 
@@ -83,10 +87,7 @@ class _LineChartState extends AnimatedWidgetBaseState<LineChart> {
 
     /// Calculate minX, maxX, minY, maxY for [LineChartData] if they are null,
     /// it is necessary to render the chart correctly.
-    if (newData.minX.isNaN ||
-        newData.maxX.isNaN ||
-        newData.minY.isNaN ||
-        newData.maxY.isNaN) {
+    if (newData.minX.isNaN || newData.maxX.isNaN || newData.minY.isNaN || newData.maxY.isNaN) {
       final (minX, maxX, minY, maxY) = _lineChartHelper.calculateMaxAxisValues(
         newData.lineBarsData,
       );
@@ -102,8 +103,7 @@ class _LineChartState extends AnimatedWidgetBaseState<LineChart> {
     if (lineTouchData.enabled && lineTouchData.handleBuiltInTouches) {
       _providedTouchCallback = lineTouchData.touchCallback;
       newData = newData.copyWith(
-        lineTouchData:
-            newData.lineTouchData.copyWith(touchCallback: _handleBuiltInTouch),
+        lineTouchData: newData.lineTouchData.copyWith(touchCallback: _handleBuiltInTouch),
       );
     }
 
@@ -119,19 +119,27 @@ class _LineChartState extends AnimatedWidgetBaseState<LineChart> {
     }
     _providedTouchCallback?.call(event, touchResponse);
 
-    if (!event.isInterestedForInteractions ||
-        touchResponse?.lineBarSpots == null ||
-        touchResponse!.lineBarSpots!.isEmpty) {
-      setState(() {
-        _showingTouchedTooltips.clear();
-        _showingTouchedIndicators.clear();
+    if (!event.isInterestedForInteractions || touchResponse?.lineBarSpots == null || touchResponse!.lineBarSpots!.isEmpty) {
+      // 기존 툴팁의 setState를 주석(툴팁이 바로 없어지는 부분 제거)
+      // setState(() {
+      //   _showingTouchedTooltips.clear();
+      //   _showingTouchedIndicators.clear();
+      // });
+
+      // 선택한 툴팁이 3초동안 지속 되고(Timer), 3초 전에 선택한 툴팁은 취소 되도록(Timer.cancle()) 변경
+      _resetTimer?.cancel();
+
+      _resetTimer = Timer(const Duration(milliseconds: 3000), () {
+        setState(() {
+          _showingTouchedTooltips.clear();
+          _showingTouchedIndicators.clear();
+        });
       });
       return;
     }
 
     setState(() {
-      final sortedLineSpots = List.of(touchResponse.lineBarSpots!)
-        ..sort((spot1, spot2) => spot2.y.compareTo(spot1.y));
+      final sortedLineSpots = List.of(touchResponse.lineBarSpots!)..sort((spot1, spot2) => spot2.y.compareTo(spot1.y));
 
       _showingTouchedIndicators.clear();
       for (var i = 0; i < touchResponse.lineBarSpots!.length; i++) {
@@ -151,8 +159,7 @@ class _LineChartState extends AnimatedWidgetBaseState<LineChart> {
     _lineChartDataTween = visitor(
       _lineChartDataTween,
       _getData(),
-      (dynamic value) =>
-          LineChartDataTween(begin: value as LineChartData, end: widget.data),
+      (dynamic value) => LineChartDataTween(begin: value as LineChartData, end: widget.data),
     ) as LineChartDataTween?;
   }
 }
