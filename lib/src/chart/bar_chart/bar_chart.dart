@@ -19,19 +19,14 @@ class BarChart extends ImplicitlyAnimatedWidget {
     this.data, {
     this.chartRendererKey,
     super.key,
-    @Deprecated('Please use [duration] instead')
-    Duration? swapAnimationDuration,
+    @Deprecated('Please use [duration] instead') Duration? swapAnimationDuration,
     Duration duration = const Duration(milliseconds: 150),
     @Deprecated('Please use [curve] instead') Curve? swapAnimationCurve,
     Curve curve = Curves.linear,
     this.transformationConfig = const FlTransformationConfig(),
   })  : assert(
           switch (data.alignment) {
-            BarChartAlignment.center ||
-            BarChartAlignment.end ||
-            BarChartAlignment.start =>
-              transformationConfig.scaleAxis != FlScaleAxis.horizontal &&
-                  transformationConfig.scaleAxis != FlScaleAxis.free,
+            BarChartAlignment.center || BarChartAlignment.end || BarChartAlignment.start => transformationConfig.scaleAxis != FlScaleAxis.horizontal && transformationConfig.scaleAxis != FlScaleAxis.free,
             _ => true,
           },
           'Can not scale horizontally when BarChartAlignment is center, '
@@ -88,8 +83,7 @@ class _BarChartState extends AnimatedWidgetBaseState<BarChart> {
   }
 
   BarChartData _withTouchedIndicators(BarChartData barChartData) {
-    if (!barChartData.barTouchData.enabled ||
-        !barChartData.barTouchData.handleBuiltInTouches) {
+    if (!barChartData.barTouchData.enabled || !barChartData.barTouchData.handleBuiltInTouches) {
       return barChartData;
     }
 
@@ -112,8 +106,7 @@ class _BarChartState extends AnimatedWidgetBaseState<BarChart> {
   BarChartData _getData() {
     var newData = widget.data;
     if (newData.minY.isNaN || newData.maxY.isNaN) {
-      final (minY, maxY) =
-          _barChartHelper.calculateMaxAxisValues(newData.barGroups);
+      final (minY, maxY) = _barChartHelper.calculateMaxAxisValues(newData.barGroups);
       newData = newData.copyWith(
         minY: newData.minY.isNaN ? minY : newData.minY,
         maxY: newData.maxY.isNaN ? maxY : newData.maxY,
@@ -124,8 +117,7 @@ class _BarChartState extends AnimatedWidgetBaseState<BarChart> {
     if (barTouchData.enabled && barTouchData.handleBuiltInTouches) {
       _providedTouchCallback = barTouchData.touchCallback;
       return newData.copyWith(
-        barTouchData:
-            newData.barTouchData.copyWith(touchCallback: _handleBuiltInTouch),
+        barTouchData: newData.barTouchData.copyWith(touchCallback: _handleBuiltInTouch),
       );
     }
     return newData;
@@ -140,10 +132,8 @@ class _BarChartState extends AnimatedWidgetBaseState<BarChart> {
     }
     _providedTouchCallback?.call(event, touchResponse);
 
-    if (!event.isInterestedForInteractions ||
-        touchResponse == null ||
-        touchResponse.spot == null) {
-      setState(_showingTouchedTooltips.clear);
+    if (!event.isInterestedForInteractions || touchResponse == null || touchResponse.spot == null) {
+      // setState(_showingTouchedTooltips.clear);
       return;
     }
     setState(() {
@@ -161,8 +151,7 @@ class _BarChartState extends AnimatedWidgetBaseState<BarChart> {
     _barChartDataTween = visitor(
       _barChartDataTween,
       _getData(),
-      (dynamic value) =>
-          BarChartDataTween(begin: value as BarChartData, end: widget.data),
+      (dynamic value) => BarChartDataTween(begin: value as BarChartData, end: widget.data),
     ) as BarChartDataTween?;
   }
 }
